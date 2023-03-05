@@ -69,8 +69,8 @@ uint8_t servonum = 0;
 #define BMLEDSERVOMAX  500 // adjust Dome Zapper Turn position
 
 // Motor drivers
-#define PIN1 2 //Periscope Motor Driver IN1
-#define PIN2 3 //Periscope Motor Driver IN2
+#define PPIN1 2 //Periscope Motor Driver IN1
+#define PPIN2 3 //Periscope Motor Driver IN2
 #define BMIN1 4 //Bad Motivator Motor Driver IN1
 #define BMIN2 5 //Bad Motivator Motor Driver IN2
 #define ZIN1 6 //Zapper Motor Driver IN1
@@ -106,11 +106,11 @@ uint8_t servonum = 0;
 unsigned long currentMillis; // running clock reference
 
 unsigned long zappreviousMillis; // zapper store time
-long zapinterval = 30; // time between flashes
+unsigned long zapinterval = 30; // time between flashes
 unsigned long zapturnpreviousMillis; // zapper turn store time
-long zapturninterval = 2000; // time between turning dome zapper
-long zapturninterval2 = 4000; //  longer time between turning dome zapper
-static unsigned long zap_time_stopped; // time for the dome zapper to stay up
+unsigned long zapturninterval = 2000; // time between turning dome zapper
+unsigned long zapturninterval2 = 4000; //  longer time between turning dome zapper
+// static unsigned long zap_time_stopped; // time for the dome zapper to stay up
 unsigned long zappause; // time for the zapper top position to be stored
 byte zapflashcount = 0;   // counter for dome zapper flashes
 byte zapperturncount = 0; // counter for dome zapper turns
@@ -119,11 +119,11 @@ unsigned long bmpreviousMillis; // bad motivator store time
 long bminterval = 200; // time between led flashes
 
 unsigned long pturnpreviousMillis; // Periscope store time
-long pturninterval = 1200;  // time between posotional turns
+unsigned long pturninterval = 1200;  // time between posotional turns
 byte pturncount = 0; // count how many turns for the periscope
 
 unsigned long lfturnpreviousMillis; // Lifeform scanner store time
-long lfturninterval = 600;  // time between posotional turns
+unsigned long lfturninterval = 600;  // time between posotional turns
 byte lfturncount = 0; // count how many turns for the periscope
 const long lfledinterval = 500; // time between Lifeform scanner led flashes
 unsigned long lfledpreviousmillis = 0; // storage for led flashes
@@ -197,7 +197,7 @@ int lastButtonState3 = 0;   // the previous reading from the input pin
 int lastButtonState4 = 0;   // the previous reading from the input pin
 int lastButtonState5 = 0;   // the previous reading from the input pin
 
-
+unsigned char ucLastSerial = 0;
 
 void setup() {
   Serial.begin(SERIAL_PORT_SPEED);// serial communicationpwm.begin();
@@ -205,8 +205,8 @@ void setup() {
   pwm.setPWMFreq(50); //  standard for analog servos
 
   //output pins
-  pinMode(PIN1, OUTPUT);
-  pinMode(PIN2, OUTPUT);
+  pinMode(PPIN1, OUTPUT);
+  pinMode(PPIN2, OUTPUT);
   pinMode(BMIN1, OUTPUT);
   pinMode(BMIN2, OUTPUT);
   pinMode(ZIN1, OUTPUT);
@@ -239,8 +239,8 @@ void setup() {
   pinMode(buttonPin5, INPUT_PULLUP);
 
   // Write the motor pins low so they dont start on power up
-  digitalWrite(PIN1, LOW);
-  digitalWrite(PIN2, LOW);
+  digitalWrite(PPIN1, LOW);
+  digitalWrite(PPIN2, LOW);
   digitalWrite(BMIN1, LOW);
   digitalWrite(BMIN2, LOW);
   digitalWrite(ZIN1, LOW);
@@ -311,6 +311,37 @@ void loop() {
     if (buttonState5 == LOW) {
       buttonPushCounter5++;
     }
+  }
+
+  // Move by serial command 0 - 6
+  if (Serial.available() > 0) {      //wait for data available
+    ucLastSerial = Serial.read();
+    switch (ucLastSerial)
+    {
+    case '0':
+      buttonPushCounter++;
+      break;
+    case '1':
+      buttonPushCounter1++;
+      break;
+    case '2':
+      buttonPushCounter2++;
+      break;
+    case '3':
+      buttonPushCounter3++;
+      break;
+    case '4':
+      buttonPushCounter4++;
+      break;
+    case '5':
+      buttonPushCounter5++;
+      break;
+   
+    default:
+      break;
+    }
+
+    Serial.flush();
   }
 
   //dome zapper
@@ -574,15 +605,15 @@ void PeriscopeUp() { //button tirggered Lift periscope, flash lights, rotate bac
   switch (statepup) {
     case P_MOVE_TOP:
       if (PTopVal != LOW) {
-        digitalWrite(PIN1, HIGH); //turn the dc motor on
-        digitalWrite(PIN2, LOW);
+        digitalWrite(PPIN1, HIGH); //turn the dc motor on
+        digitalWrite(PPIN2, LOW);
         statepup = P_TOP;
       }
       break;
     case P_TOP:
       if (PTopVal == LOW) {
-        digitalWrite(PIN1, LOW); //turn the motor off
-        digitalWrite(PIN2, LOW); //turn the motor off
+        digitalWrite(PPIN1, LOW); //turn the motor off
+        digitalWrite(PPIN2, LOW); //turn the motor off
       }
       break;
 
@@ -595,15 +626,15 @@ void PeriscopeDown() { // this function lowers the periscope
   switch (statepdown) {
     case P_MOVE_BOT:
       if (PBotVal != LOW) {
-        digitalWrite(PIN1, LOW); //turn the dc motor on
-        digitalWrite(PIN2, HIGH);
+        digitalWrite(PPIN1, LOW); //turn the dc motor on
+        digitalWrite(PPIN2, HIGH);
         statepdown = P_BOT;
       }
       break;
     case P_BOT:
       if (PBotVal == LOW) {
-        digitalWrite(PIN1, LOW); //turn the dc motor on
-        digitalWrite(PIN2, LOW);
+        digitalWrite(PPIN1, LOW); //turn the dc motor on
+        digitalWrite(PPIN2, LOW);
       }
       break;
   }
@@ -916,6 +947,7 @@ void servoSetup() {
 
 //Function to display values for testing, uncheck any values you don't want to or do want to see
 void SerialOut() {
+  Serial.print("Char:"); Serial.write(ucLastSerial); Serial.print("\t");
   Serial.print("B:"); Serial.print(buttonPushCounter); Serial.print("\t");
   Serial.print("B1:"); Serial.print(buttonPushCounter1); Serial.print("\t");
   Serial.print("B2:"); Serial.print(buttonPushCounter2); Serial.print("\t");
