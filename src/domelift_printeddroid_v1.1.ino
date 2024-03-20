@@ -40,7 +40,7 @@
 //Call boards for i2c
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 // Define constants and values to stay the same
-#define SERIAL_PORT_SPEED 57600 // Define the port output serial communication speed
+#define SERIAL_PORT_SPEED 9600 // Define the port output serial communication speed
 // our servo # counter
 uint8_t servonum = 0;
 
@@ -68,8 +68,6 @@ uint8_t servonum = 0;
     const byte nrf_address[6] = "R2NRF";
   #endif
 #endif
-
-
 
 // These are the servo end points for the pie panels, adjust to open and close more or less
 #define BMSERVOMIN 300 // adjust for pie panel position (150 - 600)
@@ -241,6 +239,11 @@ int lastButtonState3 = 0; // the previous reading from the input pin
 int lastButtonState4 = 0; // the previous reading from the input pin
 int lastButtonState5 = 0; // the previous reading from the input pin
 
+#define SERIALBUFFERSIZE 64
+
+char SerialBuffer[SERIALBUFFERSIZE];
+unsigned int BufferIndex = 0;
+
 
 void setup()
 {
@@ -373,30 +376,75 @@ void loop()
         }
       #endif
 
+
+        if (Serial.available())
+        {
+            char c = Serial.read();
+            if (c == '\n')
+                return; 
+            SerialBuffer[BufferIndex++] = c;
+            if ((c == '\r') || (BufferIndex == SERIALBUFFERSIZE))   // Command complete or buffer full
+            {
+                SerialBuffer[BufferIndex-1] = 0x00; // ensure proper termination
+
+                if(BufferIndex>1)
+                {
+                    if (strcmp(SerialBuffer, ":LI00") == 0)  // Lift All
+                    {
+                        // TODO
+                    }
+                    else if (strcmp(SerialBuffer, ":LI07") == 0)  // Lift Bad Motivator
+                    {
+                        buttonPushCounter3++;
+                    }
+                    else if (strcmp(SerialBuffer, ":LI08") == 0)  // Lift Dome Zapper
+                    {
+                        buttonPushCounter++;            
+                    }
+                    else if (strcmp(SerialBuffer, ":LI09") == 0)  // Lift Lightsaber
+                    {
+                        buttonPushCounter4++;
+                    }
+                    else if (strcmp(SerialBuffer, ":LI10") == 0)  // Lift Lifeform Scanner
+                    {
+                        buttonPushCounter2++;
+                    }
+                    else if (strcmp(SerialBuffer, ":LI11") == 0)  // Lift Periscope
+                    {
+                        buttonPushCounter1++;
+                    }
+                    // TODO: Drink Server
+                }
+                // Clear Buffer
+                memset(SerialBuffer, 0x00, SERIALBUFFERSIZE);
+                BufferIndex = 0;
+            }
+        } 
+        /*
         if (Serial.available())
         {
             int input = Serial.read();
             switch (input)
             {
-            case '0':   // Dome Zapper
+            case '0':   // Dome Zapper,         Panel 8
                 buttonPushCounter++;
             break;
-            case '1':   // Periscope
+            case '1':   // Periscope,           Panel 11
                 buttonPushCounter1++;
             break;
-            case '2':   // Lifeform Scanner
+            case '2':   // Lifeform Scanner,    Panel 10
                 buttonPushCounter2++;
             break;
-            case '3':   // Bad Motivator
+            case '3':   // Bad Motivator,       Panel 7
                 buttonPushCounter3++;
             break;
-            case '4':   // Lightsaber Lifter
+            case '4':   // Lightsaber Lifter,   Panel 9
                 buttonPushCounter4++;
             break;
-            case '5':   // Drink Server
+            case '5':   // Drink Server,        Panel 12?
                 buttonPushCounter5++;
             break;
-            /*
+            
             // --- EFFECTS---
             case 'S':   // Smoke Bad Motivator
                 badMotivator.effectOn_Smoke(5000);
@@ -404,11 +452,11 @@ void loop()
             case 'G':   // Smoke Bad Motivator
                 badMotivator.effectOn_Glow(10000);
             break;
-            */
+            
             default:
             break;
             }
-        }
+        }*/
       #ifdef USESERIAL3
       char buffer[32] = {0};
       unsigned char index = 0;
