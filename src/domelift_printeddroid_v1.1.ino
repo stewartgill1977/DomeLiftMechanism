@@ -391,7 +391,11 @@ void loop()
                 {
                     if (strcmp(SerialBuffer, ":LI00") == 0)  // Lift All
                     {
-                        // TODO
+                        buttonPushCounter++;
+                        buttonPushCounter1++;
+                        buttonPushCounter2++;
+                        buttonPushCounter3++;
+                        buttonPushCounter4++;
                     }
                     else if (strcmp(SerialBuffer, ":LI07") == 0)  // Lift Bad Motivator
                     {
@@ -399,7 +403,7 @@ void loop()
                     }
                     else if (strcmp(SerialBuffer, ":LI08") == 0)  // Lift Dome Zapper
                     {
-                        buttonPushCounter++;            
+                        buttonPushCounter++;
                     }
                     else if (strcmp(SerialBuffer, ":LI09") == 0)  // Lift Lightsaber
                     {
