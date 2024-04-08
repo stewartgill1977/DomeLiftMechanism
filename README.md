@@ -5,3 +5,5 @@ https://github.com/RealNobser/BetterDuinoFirmwareV4
 
 Details on Matt Zwarts Dome Mechanisms:
 https://www.facebook.com/groups/MrBaddeley for details.
+
+**HINT: I'm just hosting the code for better access and minor changes. There will be a complete new version based on the AstroCAN series in the future.**
