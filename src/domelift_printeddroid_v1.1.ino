@@ -172,7 +172,7 @@ byte pturncount = 0; // count how many turns for the periscope
 unsigned long lfturnpreviousMillis; // Lifeform scanner store time
 unsigned long lfturninterval = 600; // time between posotional turns
 byte lfturncount = 0; // count how many turns for the periscope
-const unsigned long lfledinterval = 500; // time between Lifeform scanner led flashes
+const unsigned long lfledinterval = 40; // time between Lifeform scanner led flashes
 unsigned long lfledpreviousmillis = 0; // storage for led flashes
 unsigned long dspreviousMillis; // drink server store time
 long dsinterval = 4000; // time between drink server going up
@@ -391,11 +391,7 @@ void loop()
                 {
                     if (strcmp(SerialBuffer, ":LI00") == 0)  // Lift All
                     {
-                        buttonPushCounter++;
-                        buttonPushCounter1++;
-                        buttonPushCounter2++;
-                        buttonPushCounter3++;
-                        buttonPushCounter4++;
+                        // TODO
                     }
                     else if (strcmp(SerialBuffer, ":LI07") == 0)  // Lift Bad Motivator
                     {
@@ -403,7 +399,7 @@ void loop()
                     }
                     else if (strcmp(SerialBuffer, ":LI08") == 0)  // Lift Dome Zapper
                     {
-                        buttonPushCounter++;
+                        buttonPushCounter++;            
                     }
                     else if (strcmp(SerialBuffer, ":LI09") == 0)  // Lift Lightsaber
                     {
@@ -676,6 +672,7 @@ void DomeZapperUp()
                 Wire.write(":LK08\r");
                 Wire.endTransmission();
             }
+            delay (600);
             digitalWrite(ZIN1, HIGH); //turn the dc motor on
             digitalWrite(ZIN2, LOW);
             statezapup = ZAP_TOP;
@@ -844,7 +841,7 @@ void PeriscopeTurn()
     case 2:
         currentMillis = millis();
         pturncount++;
-        if (pturncount == 3) {
+        if (pturncount == 6) {
             statept = 3;
             pturncount = 0;
         }
@@ -868,6 +865,7 @@ void LifeformUp()
                 Wire.endTransmission();
 
             }
+            delay (600);
             digitalWrite(LFIN1, HIGH); //turn the dc motor on
             digitalWrite(LFIN2, LOW);
             statelfup = LF_TOP;
@@ -955,6 +953,7 @@ void BadMotivatorUp()
                 Wire.write(":LK07\r");
                 Wire.endTransmission();
             }
+            delay (600);
             digitalWrite(BMIN1, HIGH); //turn the dc motor on
             digitalWrite(BMIN2, LOW);
             statebmup = BM_TOP;
@@ -1007,7 +1006,7 @@ void LightsaberUp()
                 Wire.write(":LK09\r");
                 Wire.endTransmission();
             }
-
+delay (600);
             digitalWrite(LSIN1, HIGH); //turn the dc motor on
             digitalWrite(LSIN2, LOW);
             statelsup = LS_TOP;
@@ -1060,6 +1059,7 @@ void DrinkServerUp()
                 Wire.write(":LK11\r");
                 Wire.endTransmission();
             }
+            delay (600);
             digitalWrite(DSIN1, HIGH); //turn the dc motor on
             digitalWrite(DSIN2, LOW);
             statedsup = DS_TOP;
